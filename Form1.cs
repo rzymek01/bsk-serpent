@@ -110,15 +110,28 @@ namespace serpent {
 
             // istnienie plików
             if (!File.Exists(srcFile.Text)) {
-                errors.Add("Podano niepoprawny plik źródłowy.");
+                errors.Add("Podano nieistniejący plik źródłowy.");
             }
 
-            if (!File.Exists(dstFile.Text)) {
-                errors.Add("Podano niepoprawny plik wynikowy.");
+            if (File.Exists(dstFile.Text)) {
+                var content = "Plik wynikowy już istnieje.\nCzy chcesz go nadpisać?";
+                var result = MessageBox.Show(content, "Potwierdzenie", MessageBoxButtons.YesNo);
+
+                if (DialogResult.No == result)
+                {
+                    return;
+                }
             }
 
             /* wykonanie algorytmu */
-            if (errors.Count == 0) {
+            BackgroundWorker bg = encryptWorker;
+            try
+            {
+                if (errors.Count > 0)
+                {
+                    throw new Exception();
+                }
+
                 // zmiana stanu kontrolek
                 openSrcFile.Enabled = false;
                 saveDstFile.Enabled = false;
@@ -127,7 +140,7 @@ namespace serpent {
                 performOperation.Enabled = false;
                 abortOperation.Enabled = true;
                 tabControl1.Enabled = false;
-                
+
                 progressBar.Value = 0;
                 progressBar.Visible = true;
 
@@ -135,30 +148,77 @@ namespace serpent {
                 //  utworzenie obiektu klasy algorithm (IAlgorithm)
                 //  wywołanie metody encrypt lub decrypt z odpowiednimi parametrami
                 //  w tym obsługa paska postepu i przerwania operacji
-                IAlgorithm alg = new Serpent();
-                BackgroundWorker bg;
+                IAlgorithm alg;
+                
+                //
+                var cipherMode = operationMode.Text;
+                var segment = Convert.ToInt32(segmentSize.Text.Split(' ')[0]);
 
-                // wygenerowanie klucza
+                if (encrypt)
+                {
+                    //
+                    var sessionKeySize = Convert.ToInt32(keySize.Text.Split(' ')[0]);
 
-                if (encrypt) {
+                    //var key = Serpent.generateKey(sessionKeySize);
+                    var key = Serpent.generateKeyFromBytes(Convert.FromBase64String("ZgCKtGo7pgmpRw7EFHJTGQ=="));
+                    var iv = Serpent.generateIV();
+
+                    //@todo: czy da się ustalić długość podbloku dla CBC?
+
                     // utworzenie nagłówka
+                    //@todo: ustalić wielkość paddingu, również dla OFB i CFB
 
                     // zapisanie nagłówka
+                    var headerOffset = 0;
 
                     // szyfrowanie
-                    bg = encryptWorker;
-                    alg.init(srcFile.Text, dstFile.Text, "sessKey", "ECB", 128, 0, 0);
+                    alg = new Serpent(key, iv, true);
+
+                    //bg = encryptWorker;
+                    alg.init(srcFile.Text, dstFile.Text, cipherMode, segment, 0, headerOffset);
 
                     statusBarLabel.Text = "trwa szyfrowanie...";
-                } else {
+                }
+                else
+                {
+                    // odczytanie parametrów z nagłówka
+                    //@todo
+
+                    byte[] encryptedKey = Convert.FromBase64String("ZgCKtGo7pgmpRw7EFHJTGQ==");
+                    byte[] decryptedKey = encryptedKey;
+                    var sessionKey = Serpent.generateKeyFromBytes(decryptedKey);
+
+                    byte[] iv = Serpent.generateIV(); // same 0
+                    segment = 128;
+                    cipherMode = "OFB";
+
+                    var headerOffset = 0;
+
                     // odszyfrowywanie
-                    bg = decryptWorker;
+                    alg = new Serpent(sessionKey, iv, false);
+
+                    //bg = encryptWorker;
+                    alg.init(srcFile.Text, dstFile.Text, cipherMode, segment, headerOffset, 0);
 
                     statusBarLabel.Text = "trwa odszyfrowywanie...";
                 }
 
                 bg.RunWorkerAsync(alg);
-            } else {
+            }
+            catch (System.IO.IOException ex)
+            {
+                bg.CancelAsync();
+                MessageBox.Show("Wystąpił błąd przy zapisywaniu lub odczytywaniu pliku.");
+            }
+            catch (ArgumentException ex)
+            {
+                bg.CancelAsync();
+                MessageBox.Show("Wystąpił błąd przy inicjalizacji algorytmu szyfrowania.");
+            }
+            catch (Exception ex)
+            {
+                bg.CancelAsync();
+
                 String errorStr = "Podano niepoprawne parametry.\n\nSzczegóły:\n" +
                     string.Join("\n", errors.ToArray());
                 MessageBox.Show(errorStr);
@@ -227,18 +287,18 @@ namespace serpent {
             System.Console.WriteLine("encryptWorker_RunWorkerCompleted");
 
             IAlgorithm alg = e.Result as IAlgorithm;
+            bool encryption = alg.Encryption;
             alg.Dispose();
 
             restoreDefaultControlsState();
-            statusBarLabel.Text = (e.Cancelled ? "przerwano" : "zaszyfrowano");
+            var opStatus = (encryption ? "zaszyfrowano" : "odszyfrowano");
+            statusBarLabel.Text = (e.Cancelled ? "przerwano" : opStatus);
         }
 
-
-        //todo: połączenie z biblioteką Bouncy Castle
+        //@todo: usunąć decrypt workera
         private void decryptWorker_DoWork(object sender, DoWorkEventArgs e) {
             System.Console.WriteLine("decryptWorker_DoWork");
 
-            //@todo: decryptWorker_DoWork
         }
 
         private void decryptWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {

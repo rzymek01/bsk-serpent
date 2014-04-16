@@ -120,19 +120,15 @@
   <data name="fileHeader.Text" xml:space="preserve">
     <value>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
 &lt;EncryptedFileHeader&gt;
-&lt;Algorithm&gt;SERPENT&lt;/Algorithm&gt;
-&lt;CipherMode&gt;ECB&lt;/CipherMode&gt;
-&lt;BlockSize&gt;128&lt;/BlockSize&gt;
-&lt;SegmentSize&gt;64&lt;/SegmentSize&gt;
-&lt;KeySize&gt;256&lt;/KeySize&gt;
-&lt;EncryptedKey&gt;zaszyfrowany klucz&lt;/EncryptedKey&gt;
-&lt;IV&gt;wektor początkowy&lt;/IV&gt;
-&lt;User&gt;
-  &lt;Name&gt;Marek&lt;/Name&gt;
-  &lt;SessionKey&gt;zaszyfrowany klucz sesyjny&lt;/SessionKey&gt;
-&lt;/User&gt;
-&lt;/EncryptedFileHeader&gt;
-{szyfrogram}</value>
+  &lt;Algorithm&gt;SERPENT&lt;/Algorithm&gt;
+  &lt;CipherMode&gt;ECB&lt;/CipherMode&gt;
+  &lt;BlockSize&gt;128&lt;/BlockSize&gt;
+  &lt;SegmentSize&gt;64&lt;/SegmentSize&gt;
+  &lt;KeySize&gt;256&lt;/KeySize&gt;
+  &lt;EncryptedKey&gt;zaszyfrowany klucz&lt;/EncryptedKey&gt;
+  &lt;IV&gt;wektor początkowy&lt;/IV&gt;
+  &lt;Padding&gt;6&lt;/Padding&gt;
+&lt;/EncryptedFileHeader&gt;</value>
   </data>
   <metadata name="openFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>

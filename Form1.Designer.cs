@@ -172,13 +172,21 @@
             this.segmentSize.FormattingEnabled = true;
             this.segmentSize.Items.AddRange(new object[] {
             "128 b",
+            "120 b",
+            "112 b",
+            "104 b",
+            "96 b",
+            "88 b",
+            "80 b",
+            "72 b",
             "64 b",
+            "56 b",
+            "48 b",
+            "40 b",
             "32 b",
+            "24 b",
             "16 b",
-            "8 b",
-            "4 b",
-            "2 b",
-            "1 b"});
+            "8 b"});
             this.segmentSize.Location = new System.Drawing.Point(319, 47);
             this.segmentSize.Name = "segmentSize";
             this.segmentSize.Size = new System.Drawing.Size(54, 21);
@@ -336,7 +344,7 @@
             this.pomocToolStripMenuItem});
             this.menuBar.Location = new System.Drawing.Point(0, 0);
             this.menuBar.Name = "menuBar";
-            this.menuBar.Size = new System.Drawing.Size(428, 24);
+            this.menuBar.Size = new System.Drawing.Size(436, 24);
             this.menuBar.TabIndex = 1;
             this.menuBar.Text = "menuStrip1";
             // 
@@ -345,13 +353,13 @@
             this.plikToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.zakończToolStripMenuItem});
             this.plikToolStripMenuItem.Name = "plikToolStripMenuItem";
-            this.plikToolStripMenuItem.Size = new System.Drawing.Size(38, 20);
+            this.plikToolStripMenuItem.Size = new System.Drawing.Size(34, 20);
             this.plikToolStripMenuItem.Text = "&Plik";
             // 
             // zakończToolStripMenuItem
             // 
             this.zakończToolStripMenuItem.Name = "zakończToolStripMenuItem";
-            this.zakończToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.zakończToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
             this.zakończToolStripMenuItem.Text = "&Zakończ";
             this.zakończToolStripMenuItem.Click += new System.EventHandler(this.zakończToolStripMenuItem_Click);
             // 
@@ -360,13 +368,13 @@
             this.pomocToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.oprogramieToolStripMenuItem});
             this.pomocToolStripMenuItem.Name = "pomocToolStripMenuItem";
-            this.pomocToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
+            this.pomocToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
             this.pomocToolStripMenuItem.Text = "P&omoc";
             // 
             // oprogramieToolStripMenuItem
             // 
             this.oprogramieToolStripMenuItem.Name = "oprogramieToolStripMenuItem";
-            this.oprogramieToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.oprogramieToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.oprogramieToolStripMenuItem.Text = "O &programie";
             // 
             // statusBar
@@ -374,9 +382,9 @@
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusBarLabel,
             this.progressBar});
-            this.statusBar.Location = new System.Drawing.Point(0, 389);
+            this.statusBar.Location = new System.Drawing.Point(0, 401);
             this.statusBar.Name = "statusBar";
-            this.statusBar.Size = new System.Drawing.Size(428, 22);
+            this.statusBar.Size = new System.Drawing.Size(436, 22);
             this.statusBar.TabIndex = 2;
             this.statusBar.Text = "statusStrip1";
             // 
@@ -424,7 +432,7 @@
             this.dstFile.Name = "dstFile";
             this.dstFile.Size = new System.Drawing.Size(224, 20);
             this.dstFile.TabIndex = 4;
-            this.dstFile.Text = "C:\\Users\\Maciej\\Dropbox\\linux\\home\\maciek\\Studies\\0.out";
+            this.dstFile.Text = "E:\\Projekty\\BSK\\dane-testowe\\0.out";
             this.dstFile.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // label2
@@ -453,7 +461,7 @@
             this.srcFile.Name = "srcFile";
             this.srcFile.Size = new System.Drawing.Size(224, 20);
             this.srcFile.TabIndex = 1;
-            this.srcFile.Text = "C:\\Users\\Maciej\\Dropbox\\linux\\home\\maciek\\Studies\\0.in";
+            this.srcFile.Text = "E:\\Projekty\\BSK\\dane-testowe\\0.in";
             // 
             // performOperation
             // 
@@ -495,7 +503,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(428, 411);
+            this.ClientSize = new System.Drawing.Size(436, 423);
             this.Controls.Add(this.abortOperation);
             this.Controls.Add(this.performOperation);
             this.Controls.Add(this.statusBar);
