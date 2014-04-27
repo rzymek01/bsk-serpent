@@ -8,6 +8,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Security.Cryptography;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace serpent {
     public partial class Form1 : Form {
@@ -159,7 +161,7 @@ namespace serpent {
                     var segment = Convert.ToInt32(segmentSize.Text.Split(' ')[0]);
                     var sessionKeySize = Convert.ToInt32(keySize.Text.Split(' ')[0]);
 
-                    encryptFile(srcFile.Text, dstFile.Text, cipherMode, segment, sessionKeySize, password.Text);
+                    alg = encryptFile(srcFile.Text, dstFile.Text, cipherMode, segment, sessionKeySize, password.Text);
 
                     statusBarLabel.Text = "trwa szyfrowanie...";
                 }
@@ -167,7 +169,7 @@ namespace serpent {
                 {
                     var password = decryptPassword.Text;
 
-                    decryptFile(srcFile.Text, dstFile.Text, password);
+                    alg = decryptFile(srcFile.Text, dstFile.Text, password);
 
                     statusBarLabel.Text = "trwa odszyfrowywanie...";
                 }
@@ -210,7 +212,7 @@ namespace serpent {
         private void abortOperation_Click(object sender, EventArgs e) {
             statusBarLabel.Text = "przerywanie operacji...";
 
-            BackgroundWorker[] workers = new BackgroundWorker[]{encryptWorker, decryptWorker};
+            BackgroundWorker[] workers = new BackgroundWorker[]{encryptWorker};
 
             foreach (BackgroundWorker w in workers) {
                 if (w.IsBusy) {
@@ -228,8 +230,6 @@ namespace serpent {
             Int64 bytes = 1;
 
             while (bytes > 0 && !encryptWorker.CancellationPending) {
-                System.Threading.Thread.Sleep(500);
-                
                 // "unit work" szyfrowanie fragmentu pliku
                 bytes = alg.encrypt(step);
                 countBytes += bytes;
@@ -273,40 +273,122 @@ namespace serpent {
 
             System.Console.WriteLine("srcChecksum = {0}", srcChecksum);
 
+            // utworzenie listy parametrów
+            String encPath = "E:\\Projekty\\BSK\\dane-testowe\\pattern.enc";
+            String decPath = "E:\\Projekty\\BSK\\dane-testowe\\pattern.dec";
 
-            //@todo: utworzyć klasę AlgorithmParam ze składowymi src, dst, cipherMode, segmentSize, sessionKeySize, password
-            // utworzyć listę obiektów tej klasy z różnymi wartościami
+            AlgorithmParams[] algParams = new AlgorithmParams[32];
+            algParams[0] = new AlgorithmParams(path, encPath, "ECB", 128, 256, "");
+            algParams[1] = new AlgorithmParams(path, encPath, "CBC", 128, 128, "");
 
-            // foreach po liście
-            //   encryptFile
-            //   alg.encrypt(srcFile.length)
-            //   decryptFile
-            //   alg.encrypt(srcFile'.length)
-            //
-            //   obliczenie dstChecksum
-            //   porównanie srcChecksum z dstChecksum
+            algParams[2] = new AlgorithmParams(path, encPath, "CFB", 128, 128, "");
+            algParams[3] = new AlgorithmParams(path, encPath, "CFB", 112, 128, "");
+            algParams[4] = new AlgorithmParams(path, encPath, "CFB", 104, 128, "");
+            algParams[5] = new AlgorithmParams(path, encPath, "CFB", 96, 128, "");
+            algParams[6] = new AlgorithmParams(path, encPath, "CFB", 88, 128, "");
+            algParams[7] = new AlgorithmParams(path, encPath, "CFB", 80, 128, "");
+            algParams[8] = new AlgorithmParams(path, encPath, "CFB", 72, 128, "");
+            algParams[9] = new AlgorithmParams(path, encPath, "CFB", 64, 128, "");
+            algParams[10] = new AlgorithmParams(path, encPath, "CFB", 56, 128, "");
+            algParams[11] = new AlgorithmParams(path, encPath, "CFB", 48, 128, "");
+            algParams[12] = new AlgorithmParams(path, encPath, "CFB", 40, 128, "");
+            algParams[13] = new AlgorithmParams(path, encPath, "CFB", 32, 128, "");
+            algParams[14] = new AlgorithmParams(path, encPath, "CFB", 24, 128, "");
+            algParams[15] = new AlgorithmParams(path, encPath, "CFB", 16, 128, "");
+            algParams[16] = new AlgorithmParams(path, encPath, "CFB", 8, 128, "");
 
-            // komunikaty błędu mogą iść jako MessageBox
+            algParams[17] = new AlgorithmParams(path, encPath, "OFB", 128, 128, "");
+            algParams[18] = new AlgorithmParams(path, encPath, "OFB", 112, 128, "");
+            algParams[19] = new AlgorithmParams(path, encPath, "OFB", 104, 128, "");
+            algParams[20] = new AlgorithmParams(path, encPath, "OFB", 96, 128, "");
+            algParams[21] = new AlgorithmParams(path, encPath, "OFB", 88, 128, "");
+            algParams[22] = new AlgorithmParams(path, encPath, "OFB", 80, 128, "");
+            algParams[23] = new AlgorithmParams(path, encPath, "OFB", 72, 128, "");
+            algParams[24] = new AlgorithmParams(path, encPath, "OFB", 64, 128, "");
+            algParams[25] = new AlgorithmParams(path, encPath, "OFB", 56, 128, "");
+            algParams[26] = new AlgorithmParams(path, encPath, "OFB", 48, 128, "");
+            algParams[27] = new AlgorithmParams(path, encPath, "OFB", 40, 128, "");
+            algParams[28] = new AlgorithmParams(path, encPath, "OFB", 32, 128, "");
+            algParams[29] = new AlgorithmParams(path, encPath, "OFB", 24, 128, "");
+            algParams[30] = new AlgorithmParams(path, encPath, "OFB", 16, 128, "");
+            algParams[31] = new AlgorithmParams(path, encPath, "OFB", 8, 128, "");
+
+            // wykonanie testów
+            foreach (var p in algParams)
+            {
+                using (var alg = encryptFile(p))
+                {
+                    alg.encrypt(Int64.MaxValue);
+                }
+
+                p.Src = p.Dst;
+                p.Dst = decPath;
+
+                using (var alg = decryptFile(p))
+                {
+                    alg.encrypt(Int64.MaxValue);
+                }
+            
+                var resultChecksum = computeFileChecksum(decPath);
+                System.Console.WriteLine("resultChecksum = {0}", resultChecksum);
+
+                // porównanie pliku źródłowego z wynikowym
+                if (srcChecksum != resultChecksum)
+                {
+                    String testSignature = p.CipherMode + "/" + p.SegmentSize.ToString() + "/" + p.SessionKeySize.ToString();
+                    MessageBox.Show("Niepoprawny wynik podczas testu " + testSignature);
+
+                    break;
+                }
+            }
+        }
+
+        private IAlgorithm encryptFile(AlgorithmParams p)
+        {
+            return encryptFile(p.Src, p.Dst, p.CipherMode, p.SegmentSize, p.SessionKeySize, p.Password);
+        }
+
+        private IAlgorithm decryptFile(AlgorithmParams p)
+        {
+            return decryptFile(p.Src, p.Dst, p.Password);
         }
 
         private IAlgorithm encryptFile(String src, String dst, String cipherMode, int segment, int sessionKeySize, String password)
         {
             // wykonanie algorytmu
             //  utworzenie obiektu klasy algorithm (IAlgorithm)
-            //  wywołanie metody encrypt lub decrypt z odpowiednimi parametrami
+            //  wywołanie metody encrypt z odpowiednimi parametrami
             //  w tym obsługa paska postepu i przerwania operacji
             IAlgorithm alg;
 
-            //var key = Serpent.generateKey(sessionKeySize);
-            var key = Serpent.generateKeyFromBytes(Convert.FromBase64String("ZgCKtGo7pgmpRw7EFHJTGQ=="));
+            var key = Serpent.generateKey(sessionKeySize);
+            //var key = Serpent.generateKeyFromBytes(Convert.FromBase64String("ZgCKtGo7pgmpRw7EFHJTGQ=="));
             var iv = Serpent.generateIV();
 
             // utworzenie nagłówka
-            //@todo: ustalić wielkość paddingu, również dla OFB i CFB
-            // zaszyfrowanie KS Serpent/ECB/NoPadding? hasłem password
+            // @todo zaszyfrowanie KS Serpent/ECB/NoPadding? hasłem password
+            XDocument miXML = new XDocument(
+                new XDeclaration("1.0", "utf-8", "yes"),
+                new XElement("EncryptedFileHeader",
+                    new XElement("Algorithm", "SERPENT"),
+                    new XElement("CipherMode", cipherMode),
+                    new XElement("BlockSize", 128),
+                    new XElement("SegmentSize", segment),
+                    new XElement("KeySize", sessionKeySize),
+                    new XElement("EncryptedKey", Convert.ToBase64String(key.GetKey())),
+                    new XElement("IV", Convert.ToBase64String(iv))
+                )
+            );
+
+            using (StreamWriter sw = new StreamWriter(dst, false, Encoding.ASCII))
+            {
+                miXML.Save(sw);
+                sw.WriteLine();
+            }
+            long xmlSize = new FileInfo(dst).Length;
 
             // zapisanie nagłówka
-            var headerOffset = 0;
+            var headerOffset = xmlSize;
 
             // szyfrowanie
             alg = new Serpent(key, iv, true);
@@ -323,18 +405,47 @@ namespace serpent {
             //  w tym obsługa paska postepu i przerwania operacji
             IAlgorithm alg;
 
-            // odczytanie parametrów z nagłówka
-            //@todo
+            // wczytanie nagłówka
+            String xmlHeader = "";
+            using (StreamReader sr = new StreamReader(src))
+            { 
+                String line;
+                while (sr.Peek() >= 0)
+                {
+                    line = sr.ReadLine();
+                    xmlHeader += line + "\r\n";
 
-            byte[] encryptedKey = Convert.FromBase64String("ZgCKtGo7pgmpRw7EFHJTGQ==");
+                    if (line.Equals("</EncryptedFileHeader>"))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xmlHeader);
+
+            int headerOffset = xmlHeader.Length;
+
+            // wyświetlenie nagłówka w GUI
+            fileHeader.Text = xmlHeader;
+
+            // odczytanie parametrów z nagłówka
+            XmlNode node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/EncryptedKey");
+            byte[] encryptedKey = Convert.FromBase64String(node.InnerText);
+
+            //@todo odszyfrowanie KS
             byte[] decryptedKey = encryptedKey;
             var sessionKey = Serpent.generateKeyFromBytes(decryptedKey);
 
-            byte[] iv = Serpent.generateIV(); // same 0
-            var segment = 128;
-            var cipherMode = "CBC";
+            node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/IV");
+            byte[] iv = Convert.FromBase64String(node.InnerText);
 
-            var headerOffset = 0;
+            node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/SegmentSize");
+            var segment = Convert.ToInt32(node.InnerText);
+
+            node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/CipherMode");
+            var cipherMode = node.InnerText;
 
             // odszyfrowywanie
             alg = new Serpent(sessionKey, iv, false);

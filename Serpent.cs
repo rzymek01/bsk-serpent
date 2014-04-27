@@ -86,16 +86,12 @@ System.Console.WriteLine("iv: {0}", BitConverter.ToString(iv));
 
             //
             mSrcFile = File.OpenRead(srcFile);
-            mDstFile = File.Create(dstFile);
+            mDstFile = (Encryption
+                ? new FileStream(dstFile, FileMode.OpenOrCreate | FileMode.Append, FileAccess.Write)
+                : File.Create(dstFile));
             mOpMode = opMode;
             mSegmentSize = segmentSize >> 3; // divide by 8, i.e. [b] => [B]
             mBufferSize = 4096; // 2^12B - size of the single chunk of data read from disk 
-
-            //// fix for ofb and cfb modes when segment size is less then 8b
-            //if (mSegmentSize == 0)
-            //{
-            //    mSegmentSize = 1;
-            //}
 
             mSrcFileOffset = srcFileOffset;
             mDstFileOffset = dstFileOffset;
@@ -156,7 +152,8 @@ System.Console.WriteLine("iv: {0}", BitConverter.ToString(iv));
 
                     for (int j = 0; j < paddingSize; ++j)
                     {
-                        //@todo: zamiast 0 dać losową wartość
+                        //@todo: dać 0, gdy paddingu nie ma (nowy blok z samymi zerami),
+                        //  w innym przypadku dać liczbę dopisanych bajtów (w kodzie ASCII)
                         b[readBytes + j] = 0;
                     }
 
