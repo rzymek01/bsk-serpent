@@ -236,7 +236,7 @@ namespace serpent {
                 bytes = alg.encrypt(step);
                 countBytes += bytes;
 
-                int progress = (int)(countBytes / length * 100);
+                int progress = (int)(countBytes * 100 / length);
                 encryptWorker.ReportProgress(progress);
             }
 
