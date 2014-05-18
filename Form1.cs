@@ -240,11 +240,11 @@ namespace serpent {
                 encryptWorker.ReportProgress(progress);
             }
 
+            e.Result = alg;
+
             if (encryptWorker.CancellationPending) {
                 e.Cancel = true;
             }
-
-            e.Result = alg;
         }
 
         private void encryptWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
@@ -256,13 +256,21 @@ namespace serpent {
         private void encryptWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             //System.Console.WriteLine("encryptWorker_RunWorkerCompleted");
 
-            IAlgorithm alg = e.Result as IAlgorithm;
-            bool encryption = alg.Encryption;
-            alg.Dispose();
-
             restoreDefaultControlsState();
-            var opStatus = (encryption ? "zaszyfrowano" : "odszyfrowano");
-            statusBarLabel.Text = (e.Cancelled ? "przerwano" : opStatus);
+
+            if (!e.Cancelled)
+            {
+                IAlgorithm alg = e.Result as IAlgorithm;
+                bool encryption = alg.Encryption;
+                alg.Dispose();
+
+                var opStatus = (encryption ? "zaszyfrowano" : "odszyfrowano");
+                statusBarLabel.Text = opStatus;
+            }
+            else
+            {
+                statusBarLabel.Text = "przerwano";
+            }
         }
 
         /**
