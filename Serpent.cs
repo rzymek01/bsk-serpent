@@ -184,8 +184,9 @@ namespace serpent {
                 }
             }
 
-            if (paddingSize > 0)
+            if (paddingSize > 0 && readBytes < mBufferSize)
             { // zabezpieczenie przed kolejnym wywołanem funkcji na już przeczytanym do końca pliku
+              // wykonanie tylko pod koniec pliku
                 if (Encryption)
                 { // writing padding
                     for (int j = 0; j < paddingSize; ++j)
@@ -196,7 +197,7 @@ namespace serpent {
                     byte[] output = mSerpent.ProcessBytes(b, 0, lastReadBytes + paddingSize);
                     mDstFile.Write(output, 0, output.Length);
 
-                    //Console.WriteLine("encrypt: paddingSize = {0}", paddingSize);
+                    //Console.WriteLine("encrypt: paddingSize = {0}, readBytes = {1}", paddingSize, readBytes);
                 }
                 else if (!Encryption)
                 { // removing padding 
@@ -215,7 +216,7 @@ namespace serpent {
                     }
 
                     mDstFile.SetLength(mDstFile.Length - paddingSize);
-                    //Console.WriteLine("decrypt: paddingSize = {0}", paddingSize);
+                    //Console.WriteLine("decrypt: paddingSize = {0}, readBytes = {1}", paddingSize, readBytes);
                 }
             }
 

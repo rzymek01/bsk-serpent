@@ -17,6 +17,10 @@ namespace serpent {
         public Form1() {
             InitializeComponent();
 
+            // zakomentować poniższą linię w celu odkrycia zakładki Testowanie
+            tabControl1.TabPages.RemoveAt(2);
+            srcFile.Text = "";
+            dstFile.Text = "";
         }
 
         private int mLastSegmentSize;
@@ -287,43 +291,45 @@ namespace serpent {
             String encPath = "E:\\Projekty\\BSK\\dane-testowe\\pattern.enc";
             String decPath = "E:\\Projekty\\BSK\\dane-testowe\\pattern.dec";
 
-            AlgorithmParams[] algParams = new AlgorithmParams[34];
-            algParams[0] = new AlgorithmParams(path, encPath, "ECB", 128, 256, "1234567890");
-            algParams[1] = new AlgorithmParams(path, encPath, "CBC", 128, 128, "");
+            AlgorithmParams[] algParams = new AlgorithmParams[] {
+                new AlgorithmParams(path, encPath, "ECB", 128, 256, "1234567890"),
 
-            algParams[2] = new AlgorithmParams(path, encPath, "CFB", 128, 128, "0987654321");
-            algParams[3] = new AlgorithmParams(path, encPath, "CFB", 120, 128, "");
-            algParams[32] = new AlgorithmParams(path, encPath, "CFB", 112, 128, "");
-            algParams[4] = new AlgorithmParams(path, encPath, "CFB", 104, 128, "");
-            algParams[5] = new AlgorithmParams(path, encPath, "CFB", 96, 128, "testtest");
-            algParams[6] = new AlgorithmParams(path, encPath, "CFB", 88, 128, "");
-            algParams[7] = new AlgorithmParams(path, encPath, "CFB", 80, 128, "");
-            algParams[8] = new AlgorithmParams(path, encPath, "CFB", 72, 128, "");
-            algParams[9] = new AlgorithmParams(path, encPath, "CFB", 64, 128, "");
-            algParams[10] = new AlgorithmParams(path, encPath, "CFB", 56, 128, "");
-            algParams[11] = new AlgorithmParams(path, encPath, "CFB", 48, 128, "");
-            algParams[12] = new AlgorithmParams(path, encPath, "CFB", 40, 128, "");
-            algParams[13] = new AlgorithmParams(path, encPath, "CFB", 32, 128, "");
-            algParams[14] = new AlgorithmParams(path, encPath, "CFB", 24, 128, "");
-            algParams[15] = new AlgorithmParams(path, encPath, "CFB", 16, 128, "");
-            algParams[16] = new AlgorithmParams(path, encPath, "CFB", 8, 128, "");
+                new AlgorithmParams(path, encPath, "CBC", 128, 128, ""),
 
-            algParams[17] = new AlgorithmParams(path, encPath, "OFB", 128, 128, "");
-            algParams[33] = new AlgorithmParams(path, encPath, "OFB", 120, 128, "");
-            algParams[18] = new AlgorithmParams(path, encPath, "OFB", 112, 128, "");
-            algParams[19] = new AlgorithmParams(path, encPath, "OFB", 104, 128, "");
-            algParams[20] = new AlgorithmParams(path, encPath, "OFB", 96, 128, "");
-            algParams[21] = new AlgorithmParams(path, encPath, "OFB", 88, 128, "");
-            algParams[22] = new AlgorithmParams(path, encPath, "OFB", 80, 128, "");
-            algParams[23] = new AlgorithmParams(path, encPath, "OFB", 72, 128, "");
-            algParams[24] = new AlgorithmParams(path, encPath, "OFB", 64, 128, "");
-            algParams[25] = new AlgorithmParams(path, encPath, "OFB", 56, 128, "");
-            algParams[26] = new AlgorithmParams(path, encPath, "OFB", 48, 128, "");
-            algParams[27] = new AlgorithmParams(path, encPath, "OFB", 40, 128, "");
-            algParams[28] = new AlgorithmParams(path, encPath, "OFB", 32, 128, "");
-            algParams[29] = new AlgorithmParams(path, encPath, "OFB", 24, 128, "");
-            algParams[30] = new AlgorithmParams(path, encPath, "OFB", 16, 128, "");
-            algParams[31] = new AlgorithmParams(path, encPath, "OFB", 8, 128, "");
+                new AlgorithmParams(path, encPath, "CFB", 128, 128, "0987654321"),
+                new AlgorithmParams(path, encPath, "CFB", 120, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 112, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 104, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 96, 128, "testtest"),
+                new AlgorithmParams(path, encPath, "CFB", 88, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 80, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 72, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 64, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 56, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 48, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 40, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 32, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 24, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 16, 128, ""),
+                new AlgorithmParams(path, encPath, "CFB", 8, 128, ""),
+
+                new AlgorithmParams(path, encPath, "OFB", 128, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 120, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 112, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 104, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 96, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 88, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 80, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 72, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 64, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 56, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 48, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 40, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 32, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 24, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 16, 128, ""),
+                new AlgorithmParams(path, encPath, "OFB", 8, 128, "")
+            };
 
             // wykonanie testów
             Stopwatch sw = new Stopwatch();
@@ -404,7 +410,7 @@ namespace serpent {
                 new XElement("EncryptedFileHeader",
                     new XElement("Algorithm", "SERPENT"),
                     new XElement("CipherMode", cipherMode),
-                    new XElement("BlockSize", 128),
+                    //new XElement("BlockSize", 128), // jest stały do nie ma potrzeby, żeby go zapisywać
                     new XElement("SegmentSize", segment),
                     new XElement("KeySize", sessionKeySize),
                     new XElement("EncryptedKey", Convert.ToBase64String(encryptedKey)),
@@ -514,7 +520,6 @@ namespace serpent {
         {
             using (var alg = SHA256.Create())
             {
-                //return BitConverter.ToString(alg.ComputeHash(GetBytes(data))).Replace("-", "").ToLower();
                 return alg.ComputeHash(GetBytes(data));
             }
         }
@@ -550,6 +555,27 @@ namespace serpent {
             {
                 fileHeader.Text = "";
             }
+        }
+
+        private void oprogramieToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            String text = "Program Szyfrowanie plików z użyciem Serpent powstał na zaliczenie projektu" +
+            "przedmiotu Bezpieczeństwo Systemów Komputerowych wykładanym na Politechnice Gdańskiej.\n\n" +
+
+            "Algorytm Serpent to finalista konkursu AES. Jest wolniejszy, ale bezpieczniejszy od zwycięzcy, " +
+            "tj. algorytmu Rijndael. Serpent operuje blokiem o długości 128 bitów, dopuszcza klucze o długościach" +
+            "128, 192 oraz 256 bitów, wykonuje 32 rundy, działa na zasadzie spn, czyli sieci permutacyjno-przestawieniowej.\n\n" +
+
+            "W aplikacji można wskazać plik źródłowy i wynikowy, zmienić długość klucza, ustawić jeden z następujących trybów" +
+            "pracy: EBC, CBC, CFB i OFB. Dla dwóch ostatnich można wybrać długość podbloku o wartości wielokrotności 8 w " +
+            "zakresie od 8 do 128 bitów. W programie trzeba też podać hasło, które posłuży do zaszyfrowania klucza sesyjnego " +
+            "i jest wymagane przy deszyfrowaniu.\n\n" +
+
+            "Biblioteka The Bouncy Castle jest używana do wszystkich operacji kryptograficznych, m.in. do (od)szyfrowania z " +
+            "użyciem algorytmu Serpent, generowania silnie losowego klucza sesyjnego i wektora IV czy obliczania skrótu z " +
+            "hasła podanego przez użytkownika.";
+
+            MessageBox.Show(text, "O programie");
         }
     }
 }
