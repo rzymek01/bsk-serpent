@@ -37,5 +37,17 @@ namespace serpent {
          * @returns liczba faktycznie przetworzonych bajtów
          */
         Int64 decrypt(Int64 minBytes);
+
+        /**
+         * @param plaintext dane do zaszyfrowania
+         * @returns szyfrogram
+         */
+        byte[] encryptInMemory(byte[] plaintext);
+
+        /**
+         * @param cryptogram dane do odszyfrowania (szyfrogram)
+         * @returns odkodowany ciąg bajtów
+         */
+        byte[] decryptInMemory(byte[] cryptogram);
     }
 }

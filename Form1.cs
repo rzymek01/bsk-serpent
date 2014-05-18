@@ -10,11 +10,13 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using System.Xml;
+using System.Diagnostics;
 
 namespace serpent {
     public partial class Form1 : Form {
         public Form1() {
             InitializeComponent();
+
         }
 
         private int mLastSegmentSize;
@@ -222,7 +224,7 @@ namespace serpent {
         }
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
-            System.Console.WriteLine("encryptWorker_DoWork");
+            //System.Console.WriteLine("encryptWorker_DoWork");
             IAlgorithm alg = e.Argument as IAlgorithm;
             Int64 length = alg.getSrcLength();
             Int64 step = System.Convert.ToInt64(Math.Ceiling(length / (double)100));
@@ -246,13 +248,13 @@ namespace serpent {
         }
 
         private void encryptWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            System.Console.WriteLine("encryptWorker_ProgressChanged: " + e.ProgressPercentage.ToString());
+            //System.Console.WriteLine("encryptWorker_ProgressChanged: " + e.ProgressPercentage.ToString());
 
             progressBar.Value = e.ProgressPercentage;
         }
 
         private void encryptWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            System.Console.WriteLine("encryptWorker_RunWorkerCompleted");
+            //System.Console.WriteLine("encryptWorker_RunWorkerCompleted");
 
             IAlgorithm alg = e.Result as IAlgorithm;
             bool encryption = alg.Encryption;
@@ -271,20 +273,21 @@ namespace serpent {
             String path = "E:\\Projekty\\BSK\\dane-testowe\\pattern.in";
             var srcChecksum = computeFileChecksum(path);
 
-            System.Console.WriteLine("srcChecksum = {0}", srcChecksum);
+            //System.Console.WriteLine("srcChecksum = {0}", srcChecksum);
 
             // utworzenie listy parametrów
             String encPath = "E:\\Projekty\\BSK\\dane-testowe\\pattern.enc";
             String decPath = "E:\\Projekty\\BSK\\dane-testowe\\pattern.dec";
 
-            AlgorithmParams[] algParams = new AlgorithmParams[32];
-            algParams[0] = new AlgorithmParams(path, encPath, "ECB", 128, 256, "");
+            AlgorithmParams[] algParams = new AlgorithmParams[34];
+            algParams[0] = new AlgorithmParams(path, encPath, "ECB", 128, 256, "1234567890");
             algParams[1] = new AlgorithmParams(path, encPath, "CBC", 128, 128, "");
 
-            algParams[2] = new AlgorithmParams(path, encPath, "CFB", 128, 128, "");
-            algParams[3] = new AlgorithmParams(path, encPath, "CFB", 112, 128, "");
+            algParams[2] = new AlgorithmParams(path, encPath, "CFB", 128, 128, "0987654321");
+            algParams[3] = new AlgorithmParams(path, encPath, "CFB", 120, 128, "");
+            algParams[32] = new AlgorithmParams(path, encPath, "CFB", 112, 128, "");
             algParams[4] = new AlgorithmParams(path, encPath, "CFB", 104, 128, "");
-            algParams[5] = new AlgorithmParams(path, encPath, "CFB", 96, 128, "");
+            algParams[5] = new AlgorithmParams(path, encPath, "CFB", 96, 128, "testtest");
             algParams[6] = new AlgorithmParams(path, encPath, "CFB", 88, 128, "");
             algParams[7] = new AlgorithmParams(path, encPath, "CFB", 80, 128, "");
             algParams[8] = new AlgorithmParams(path, encPath, "CFB", 72, 128, "");
@@ -298,6 +301,7 @@ namespace serpent {
             algParams[16] = new AlgorithmParams(path, encPath, "CFB", 8, 128, "");
 
             algParams[17] = new AlgorithmParams(path, encPath, "OFB", 128, 128, "");
+            algParams[33] = new AlgorithmParams(path, encPath, "OFB", 120, 128, "");
             algParams[18] = new AlgorithmParams(path, encPath, "OFB", 112, 128, "");
             algParams[19] = new AlgorithmParams(path, encPath, "OFB", 104, 128, "");
             algParams[20] = new AlgorithmParams(path, encPath, "OFB", 96, 128, "");
@@ -314,33 +318,50 @@ namespace serpent {
             algParams[31] = new AlgorithmParams(path, encPath, "OFB", 8, 128, "");
 
             // wykonanie testów
+            Stopwatch sw = new Stopwatch();
+
             foreach (var p in algParams)
             {
+                if (null == p)
+                    continue;
+
+                String testSignature = p.CipherMode + "/" + p.SegmentSize.ToString() + "/" + p.SessionKeySize.ToString();
+
                 using (var alg = encryptFile(p))
                 {
+                    sw.Start();
                     alg.encrypt(Int64.MaxValue);
+                    sw.Stop();
                 }
+                Console.WriteLine(testSignature + " encrypt time: {0}", sw.Elapsed);
+                sw.Reset();
+
 
                 p.Src = p.Dst;
                 p.Dst = decPath;
 
                 using (var alg = decryptFile(p))
                 {
+                    sw.Start();
                     alg.encrypt(Int64.MaxValue);
+                    sw.Stop();
                 }
+                Console.WriteLine(testSignature + " decrypt time: {0}", sw.Elapsed);
+                sw.Reset();
             
                 var resultChecksum = computeFileChecksum(decPath);
-                System.Console.WriteLine("resultChecksum = {0}", resultChecksum);
+                //System.Console.WriteLine("resultChecksum = {0}", resultChecksum);
 
                 // porównanie pliku źródłowego z wynikowym
                 if (srcChecksum != resultChecksum)
                 {
-                    String testSignature = p.CipherMode + "/" + p.SegmentSize.ToString() + "/" + p.SessionKeySize.ToString();
                     MessageBox.Show("Niepoprawny wynik podczas testu " + testSignature);
 
-                    break;
+                    return;
                 }
             }
+
+            MessageBox.Show("Wszystko OK");
         }
 
         private IAlgorithm encryptFile(AlgorithmParams p)
@@ -365,8 +386,11 @@ namespace serpent {
             //var key = Serpent.generateKeyFromBytes(Convert.FromBase64String("ZgCKtGo7pgmpRw7EFHJTGQ=="));
             var iv = Serpent.generateIV();
 
+            // zaszyfrowanie klucza sesyjnego algorytmem Serpent/ECB hasłem `password`
+            var sessionKeyAlg = getSessionKeyAlg(true, password);
+            var encryptedKey = sessionKeyAlg.encryptInMemory(key.GetKey());
+
             // utworzenie nagłówka
-            // @todo zaszyfrowanie KS Serpent/ECB/NoPadding? hasłem password
             XDocument miXML = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 new XElement("EncryptedFileHeader",
@@ -375,7 +399,7 @@ namespace serpent {
                     new XElement("BlockSize", 128),
                     new XElement("SegmentSize", segment),
                     new XElement("KeySize", sessionKeySize),
-                    new XElement("EncryptedKey", Convert.ToBase64String(key.GetKey())),
+                    new XElement("EncryptedKey", Convert.ToBase64String(encryptedKey)),
                     new XElement("IV", Convert.ToBase64String(iv))
                 )
             );
@@ -431,13 +455,26 @@ namespace serpent {
             fileHeader.Text = xmlHeader;
 
             // odczytanie parametrów z nagłówka
-            XmlNode node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/EncryptedKey");
+            XmlNode node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/KeySize");
+            var keySize = Convert.ToInt32(node.InnerText);
+            keySize = keySize >> 3;
+
+            node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/EncryptedKey");
             byte[] encryptedKey = Convert.FromBase64String(node.InnerText);
 
-            //@todo odszyfrowanie KS
-            byte[] decryptedKey = encryptedKey;
+            // odszyfrowanie klucza sesyjnego algorytmem Serpent/ECB hasłem `password`
+            var sessionKeyAlg = getSessionKeyAlg(false, password);
+            var decryptedKey = sessionKeyAlg.encryptInMemory(encryptedKey);
+            if (decryptedKey.Length != keySize)
+            {
+                var truncatedKey = new byte[keySize];
+                System.Buffer.BlockCopy(decryptedKey, 0, truncatedKey, 0, keySize);
+                decryptedKey = truncatedKey;
+            }
+
             var sessionKey = Serpent.generateKeyFromBytes(decryptedKey);
 
+            //
             node = doc.DocumentElement.SelectSingleNode("/EncryptedFileHeader/IV");
             byte[] iv = Convert.FromBase64String(node.InnerText);
 
@@ -462,6 +499,48 @@ namespace serpent {
                 {
                     return BitConverter.ToString(alg.ComputeHash(stream)).Replace("-", "").ToLower();
                 }
+            }
+        }
+
+        private byte[] computeHash(String data)
+        {
+            using (var alg = SHA256.Create())
+            {
+                //return BitConverter.ToString(alg.ComputeHash(GetBytes(data))).Replace("-", "").ToLower();
+                return alg.ComputeHash(GetBytes(data));
+            }
+        }
+
+        private IAlgorithm getSessionKeyAlg(bool encryption, string password)
+        {
+            var SKkey = Serpent.generateKeyFromBytes(computeHash(password));
+            var SKiv = Serpent.generateIV(true);
+            IAlgorithm sessionKeyAlg = new Serpent(SKkey, SKiv, encryption);
+            sessionKeyAlg.init(null, null, "ECB", 128);
+
+            return sessionKeyAlg;
+        }
+
+        static byte[] GetBytes(String str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        static String GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length / sizeof(char)];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new String(chars);
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //Console.WriteLine("tab: {0}", tabControl1.SelectedIndex);
+            if (1 == tabControl1.SelectedIndex)
+            {
+                fileHeader.Text = "";
             }
         }
     }
